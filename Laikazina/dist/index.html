@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="lv">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#edf3f6">
+    <meta name="description" content="Laikapstākļi tavā pilsētā: temperatūra, sajūtu temperatūra, vējš un prognoze.">
+    <title>Laikaziņa — laikapstākļi tavā pilsētā</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="icons.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <!-- Galvene -->
+    <header>
+      <a class="brand" href="./"><span class="brand-icon">☀</span> laikaziņa<span class="brand-dot">.</span></a>
+      <span class="header-note">Mazliet skaidrības par dienu.</span>
+      <span class="tag">LAIKAPSTĀKĻI</span>
+    </header>
+    <main>
+      <!-- Pilsētas meklēšana -->
+      <section class="intro">
+        <div>
+          <p class="eyebrow">TAVA DIENA SĀKAS ŠEIT</p>
+          <h1>Kāds laiks aiz loga?</h1>
+          <p class="subtitle">Atrodi savu pilsētu un esi gatavs dienai.</p>
+        </div>
+        <div class="search-area">
+          <form id="search-form" role="search">
+            <label class="sr-only" for="city">Pilsētas nosaukums</label>
+            <span aria-hidden="true">⌕</span>
+            <input id="city" placeholder="Meklē pilsētu…" autocomplete="off" minlength="2" required>
+            <button type="submit" id="search-button">Meklēt <span aria-hidden="true">↗</span></button>
+          </form>
+          <div id="results" hidden></div>
+          <div class="quick">
+            <span>Ātri atrast</span>
+            <button data-city="Rīga" data-lat="56.9496" data-lon="24.1052">Rīga</button>
+            <button data-city="Liepāja" data-lat="56.5047" data-lon="21.0108">Liepāja</button>
+            <button data-city="Daugavpils" data-lat="55.8747" data-lon="26.5362">Daugavpils</button>
+          </div>
+        </div>
+      </section>
+      <p id="status" role="status" aria-live="polite">Ielādē laikapstākļus…</p>
+      <div id="weather" aria-busy="true">
+        <!-- Pašreizējie laikapstākļi un piecu dienu prognoze -->
+        <section class="overview">
+          <div class="hero">
+            <div class="hero-top">
+              <div>
+                <p class="eyebrow">ŠOBRĪD</p>
+                <h2 id="location">Rīga</h2>
+                <p id="date">Ielādē datus…</p>
+              </div>
+              <button id="refresh" class="refresh" aria-label="Atjaunot laikapstākļus" title="Atjaunot">↻</button>
+            </div>
+            <div class="hero-middle">
+              <div>
+                <div class="temperature">
+                  <span id="temperature">—</span>
+                  <span class="degree">°</span>
+                  <span class="celsius">C</span>
+                </div>
+                <p id="condition">Gaida API atbildi</p>
+              </div>
+              <div id="hero-icon" aria-hidden="true"></div>
+            </div>
+            <div class="hero-bottom">
+              <span>↓ <span id="min">—</span>° <span class="muted">Min.</span></span>
+              <span>↑ <span id="max">—</span>° <span class="muted">Maks.</span></span>
+              <span class="feels">Sajūtu temperatūra <strong id="feels">—</strong></span>
+            </div>
+          </div>
+          <aside class="forecast">
+            <div class="section-title">
+              <h2>Nākamās dienas</h2>
+              <span>5 DIENAS</span>
+            </div>
+            <div id="daily">
+              <p class="placeholder">Prognoze tiek ielādēta…</p>
+            </div>
+          </aside>
+        </section>
+        <!-- Vējš, mitrums, spiediens un redzamība -->
+        <section class="details-section">
+          <div class="section-title">
+            <h2>Diena detaļās</h2>
+            <span id="updated">Dati no Open-Meteo</span>
+          </div>
+          <div class="details">
+            <article class="metric">
+              <div class="metric-head">
+                <span>Vējš</span>
+                <span class="metric-symbol">≋</span>
+              </div>
+              <p class="value"><span id="wind">—</span> <small>m/s</small></p>
+              <p id="wind-note">Vēja virziens —</p>
+              <div class="wind-line">
+                <span id="wind-arrow">↑</span>
+                <span>10 m virs zemes</span>
+              </div>
+            </article>
+            <article class="metric">
+              <div class="metric-head">
+                <span>Gaisa mitrums</span>
+                <span class="metric-symbol">♧</span>
+              </div>
+              <p class="value"><span id="humidity">—</span> <small>%</small></p>
+              <p>Relatīvais gaisa mitrums</p>
+              <div class="track">
+                <div id="humidity-bar"></div>
+              </div>
+              <div class="scale">
+                <span>0%</span>
+                <span>100%</span>
+              </div>
+            </article>
+            <article class="metric">
+              <div class="metric-head">
+                <span>Spiediens</span>
+                <span class="metric-symbol">◴</span>
+              </div>
+              <p class="value"><span id="pressure">—</span> <small>hPa</small></p>
+              <p>Atmosfēras spiediens</p>
+              <div class="metric-foot">
+                Jūras līmenī
+              </div>
+            </article>
+            <article class="metric">
+              <div class="metric-head">
+                <span>Redzamība</span>
+                <span class="metric-symbol">◎</span>
+              </div>
+              <p class="value"><span id="visibility">—</span> <small>km</small></p>
+              <p id="visibility-note">Tuvākās stundas prognoze</p>
+              <div class="metric-foot" id="visibility-time">
+                Horizontālā redzamība
+              </div>
+            </article>
+          </div>
+        </section>
+        <!-- Tuvāko 24 stundu prognoze -->
+        <section class="hourly-section">
+          <div class="section-title">
+            <h2>Tuvākās 24 stundas</h2>
+            <span>PĒC PILSĒTAS VIETĒJĀ LAIKA</span>
+          </div>
+          <div class="hours" id="hourly">
+            <p class="placeholder">Ielādē stundu prognozi…</p>
+          </div>
+        </section>
+      </div>
+      <!-- Datu avoti -->
+      <footer>
+        <span class="brand small">☀ laikaziņa.</span>
+        <p>Prognožu dati: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · Vietas: <a href="https://www.geonames.org/" target="_blank" rel="noopener">GeoNames</a><br><span>Laikapstākļi ir modeļu aprēķini un var atšķirties no novērojumiem.</span></p>
+        <span class="footer-end">Lai skaista diena! ↗</span>
+      </footer>
+    </main>
+  </body>
+</html>

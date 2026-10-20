@@ -1,0 +1,819 @@
+/* Pamata stili un krāsas */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+:root {
+  font-family: 'DM Sans',sans-serif;
+  color: #243c4b;
+  background: #edf3f6;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,input {
+  font: inherit;
+}
+
+button,a,input {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,a:focus-visible,input:focus-visible {
+  outline: 3px solid #2277a4;
+  outline-offset: 4px;
+}
+
+/* Galvene */
+
+header {
+  max-width: 1260px;
+  margin: auto;
+  padding: 28px 40px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  border-bottom: 1px solid #dce5ea;
+}
+
+.brand {
+  text-decoration: none;
+  font-family: Manrope,sans-serif;
+  font-weight: 800;
+  font-size: 27px;
+  letter-spacing: -1.5px;
+  color: #243c4b;
+}
+
+.brand-icon {
+  color: #c28b35;
+  font-size: 34px;
+  vertical-align: middle;
+  margin-right: 7px;
+}
+
+.brand-dot {
+  color: #c28b35;
+}
+
+.header-note {
+  font-size: 12px;
+  color: #778891;
+}
+
+.tag {
+  margin-left: auto;
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 700;
+}
+
+main {
+  max-width: 1180px;
+  margin: auto;
+  padding: 0 0 20px;
+}
+
+/* Virsraksts un pilsētu meklēšana */
+
+.intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  padding-top: 43px;
+}
+
+.eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 0 0 12px;
+  color: #63818f;
+}
+
+h1,h2,p {
+  margin-top: 0;
+}
+
+h1 {
+  font: 600 38px/1.2 Manrope,sans-serif;
+  letter-spacing: -1.8px;
+  margin-bottom: 12px;
+}
+
+.subtitle {
+  color: #758791;
+  font-size: 14px;
+  margin-bottom: 0;
+}
+
+.search-area {
+  position: relative;
+  width: 440px;
+}
+
+form {
+  display: flex;
+  align-items: center;
+  padding: 7px 7px 7px 17px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #dbe5e9;
+  box-shadow: 0 4px 15px #233b4b04;
+  gap: 10px;
+}
+
+form>span {
+  font-size: 26px;
+  color: #8a9ca7;
+}
+
+input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 9px 0;
+  outline: none;
+  color: #243c4b;
+  font-size: 13px;
+}
+
+form button {
+  border: 0;
+  border-radius: 8px;
+  background: #274d60;
+  color: white;
+  padding: 13px 18px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+form button span {
+  margin-left: 12px;
+}
+
+.quick {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-top: 12px;
+  font-size: 10px;
+  color: #8b9aa3;
+}
+
+.quick button {
+  border: 0;
+  background: none;
+  color: #627c8b;
+  font-size: 11px;
+  padding: 3px;
+}
+
+.quick button:hover {
+  text-decoration: underline;
+}
+
+#results {
+  position: absolute;
+  top: 57px;
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 10px 30px #20394b25;
+  z-index: 5;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#results button {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid #edf3f6;
+  background: #fff;
+  text-align: left;
+  padding: 14px 18px;
+  color: #243c4b;
+}
+
+#results button:hover {
+  background: #edf3f6;
+}
+
+#status {
+  font-size: 12px;
+  min-height: 18px;
+  color: #6e8592;
+  margin: 19px 0 12px;
+}
+
+#status.error {
+  color: #a3402d;
+}
+
+#weather[aria-busy=true] {
+  opacity: .55;
+}
+
+/* Pašreizējie laikapstākļi un dienu prognoze */
+
+.overview {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 22px;
+}
+
+.hero {
+  border-radius: 19px;
+  background: linear-gradient(120deg,#d0e5ef,#e5eff0 70%,#f5eedb);
+  padding: 28px 32px 23px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #cbdfe7;
+}
+
+.hero:after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border: 1px solid #ffffff50;
+  border-radius: 50%;
+  right: -70px;
+  top: -130px;
+  pointer-events: none;
+}
+
+.hero-top {
+  display: flex;
+  justify-content: space-between;
+}
+
+.hero h2 {
+  font: 600 29px Manrope,sans-serif;
+  letter-spacing: -1px;
+  margin-bottom: 5px;
+}
+
+.hero .eyebrow {
+  margin-bottom: 9px;
+}
+
+.hero #date {
+  font-size: 11px;
+  color: #688291;
+  margin: 0;
+}
+
+.refresh {
+  width: 33px;
+  height: 33px;
+  border-radius: 50%;
+  background: #ffffff65;
+  border: 1px solid #ffffff90;
+  color: #4a7184;
+  font-size: 23px;
+}
+
+.refresh:hover {
+  background: white;
+}
+
+.hero-middle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 17px 0 25px;
+}
+
+.temperature {
+  display: flex;
+  align-items: flex-start;
+  font: 500 95px/1 Manrope,sans-serif;
+  letter-spacing: -7px;
+}
+
+.degree {
+  font-size: 73px;
+  margin-top: 3px;
+}
+
+.celsius {
+  font-size: 20px;
+  letter-spacing: 0;
+  margin: 18px 0 0 8px;
+  color: #7090a0;
+}
+
+#condition {
+  font-size: 16px;
+  margin: 12px 0 0;
+}
+
+#hero-icon {
+  width: 170px;
+  filter: drop-shadow(0 14px 10px #4e78851c);
+}
+
+.weather-icon {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.hero-bottom {
+  border-top: 1px solid #a6c4d05c;
+  display: flex;
+  align-items: center;
+  padding-top: 18px;
+  gap: 22px;
+  font-size: 12px;
+}
+
+.muted {
+  color: #718b97;
+  margin-left: 4px;
+}
+
+.feels {
+  margin-left: auto;
+  color: #69818c;
+  font-size: 11px;
+}
+
+.feels strong {
+  color: #243c4b;
+  margin-left: 7px;
+  font-size: 13px;
+}
+
+.forecast {
+  background: #ffffffb3;
+  border-radius: 19px;
+  padding: 25px 27px;
+  border: 1px solid #e0e8ec;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.section-title h2 {
+  font: 700 15px Manrope,sans-serif;
+  margin: 0;
+  letter-spacing: -.3px;
+}
+
+.section-title>span {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: #8b9ca5;
+}
+
+.day-row {
+  display: grid;
+  grid-template-columns: 1fr 30px 1fr;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid #e5ecef;
+  font-size: 12px;
+}
+
+.day-row:last-child {
+  border: 0;
+}
+
+.day-row .day-name {
+  font-weight: 500;
+}
+
+.day-row .day-name small {
+  display: block;
+  font-size: 9px;
+  color: #8c9ea7;
+  margin-top: 3px;
+}
+
+.day-row .day-temps {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.day-temps span {
+  color: #92a2ac;
+  margin-right: 17px;
+}
+
+.day-row svg {
+  width: 30px;
+  height: 30px;
+}
+
+/* Detalizētie rādītāji */
+
+.details-section {
+  margin-top: 30px;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 16px;
+}
+
+.metric {
+  background: #ffffffb8;
+  border: 1px solid #e0e8ec;
+  border-radius: 14px;
+  padding: 20px 22px;
+  min-height: 183px;
+}
+
+.metric-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #617d8e;
+  font-size: 12px;
+}
+
+.metric-symbol {
+  font-size: 23px;
+  color: #819eac;
+}
+
+.value {
+  font: 500 33px Manrope,sans-serif;
+  letter-spacing: -1.5px;
+  margin: 17px 0 7px;
+}
+
+.value small {
+  font: 400 13px 'DM Sans',sans-serif;
+  letter-spacing: 0;
+  color: #7e95a2;
+}
+
+.metric>p:not(.value) {
+  font-size: 10px;
+  color: #8a9ca6;
+  margin-bottom: 18px;
+}
+
+.metric-foot,.wind-line {
+  font-size: 10px;
+  color: #768f9c;
+  border-top: 1px solid #e4ecef;
+  padding-top: 12px;
+}
+
+.wind-line {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.wind-line>span:first-child {
+  color: #38768b;
+  font-size: 18px;
+}
+
+.track {
+  height: 4px;
+  border-radius: 8px;
+  background: #e5edf1;
+  margin-top: 21px;
+}
+
+.track>div {
+  height: 100%;
+  width: 0;
+  background: #7faebd;
+  border-radius: 8px;
+}
+
+.scale {
+  display: flex;
+  justify-content: space-between;
+  color: #9baab2;
+  font-size: 8px;
+  margin-top: 7px;
+}
+
+/* Stundu prognoze */
+
+.hourly-section {
+  margin-top: 30px;
+}
+
+.hours {
+  display: flex;
+  background: #ffffffa6;
+  border: 1px solid #e0e8ec;
+  border-radius: 14px;
+  padding: 21px 7px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.hour {
+  flex: 1;
+  min-width: 81px;
+  text-align: center;
+  border-right: 1px solid #e7edf0;
+}
+
+.hour:last-child {
+  border: 0;
+}
+
+.hour p {
+  font-size: 10px;
+  color: #8b9ca5;
+  margin: 0 0 12px;
+}
+
+.hour svg {
+  width: 34px;
+  height: 34px;
+  display: block;
+  margin: 0 auto 12px;
+}
+
+.hour strong {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.hour small {
+  display: block;
+  color: #7d9bad;
+  font-size: 9px;
+  margin-top: 8px;
+}
+
+.placeholder {
+  font-size: 12px;
+  color: #8699a4;
+  padding: 20px;
+}
+
+/* Kājene */
+
+footer {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  border-top: 1px solid #dce5ea;
+  margin-top: 34px;
+  padding: 23px 0 0;
+}
+
+.small {
+  font-size: 19px;
+  letter-spacing: -1px;
+  color: #6b8390;
+}
+
+footer p {
+  font-size: 9px;
+  color: #8296a2;
+  line-height: 1.8;
+  margin: 0;
+}
+
+footer a {
+  color: #5d7e8f;
+}
+
+.footer-end {
+  margin-left: auto;
+  font-size: 11px;
+  color: #7f939e;
+}
+
+/* Etiķete ekrāna lasītājiem */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Pielāgošanās ekrāna platumam */
+
+@media(min-width:1400px) {
+  main {
+    padding-top: 12px;
+  }
+
+}
+
+/* Pielāgošanās ekrāna platumam */
+
+@media(max-width:1260px) {
+  main {
+    margin: 0 40px;
+  }
+
+}
+
+/* Pielāgošanās ekrāna platumam */
+
+@media(max-width:850px) {
+/* Virsraksts un pilsētu meklēšana */
+
+  .intro {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  .search-area {
+    width: 100%;
+  }
+
+/* Pašreizējie laikapstākļi un dienu prognoze */
+
+  .overview {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .hero {
+    padding: 25px;
+  }
+
+  .temperature {
+    font-size: 78px;
+  }
+
+  #hero-icon {
+    width: 120px;
+  }
+
+  .hero-bottom {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .feels {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .forecast {
+    padding: 24px 20px;
+  }
+
+  .details {
+    grid-template-columns: repeat(2,1fr);
+  }
+
+  .header-note {
+    display: none;
+  }
+
+  h1 {
+    font-size: 34px;
+  }
+
+  .hero-middle {
+    margin-bottom: 20px;
+  }
+
+}
+
+/* Pielāgošanās ekrāna platumam */
+
+@media(max-width:560px) {
+/* Galvene */
+
+  header {
+    padding: 19px 22px;
+  }
+
+  .brand {
+    font-size: 24px;
+  }
+
+  .tag {
+    font-size: 8px;
+  }
+
+  main {
+    margin: 0 20px;
+  }
+
+/* Virsraksts un pilsētu meklēšana */
+
+  .intro {
+    padding-top: 30px;
+  }
+
+  h1 {
+    font-size: 30px;
+  }
+
+/* Pašreizējie laikapstākļi un dienu prognoze */
+
+  .overview {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-middle {
+    margin-top: 23px;
+  }
+
+  #hero-icon {
+    width: 150px;
+  }
+
+  .hero-bottom {
+    flex-wrap: nowrap;
+  }
+
+  .feels {
+    width: auto;
+    margin-left: auto;
+    font-size: 9px;
+  }
+
+  .hero {
+    padding: 25px 23px;
+  }
+
+  .details {
+    gap: 10px;
+  }
+
+  .metric {
+    padding: 17px 15px;
+  }
+
+  .metric-head {
+    font-size: 11px;
+  }
+
+  .value {
+    font-size: 29px;
+  }
+
+  .metric>p:not(.value) {
+    font-size: 9px;
+  }
+
+  .section-title>span {
+    font-size: 8px;
+  }
+
+  .footer-end {
+    display: none;
+  }
+
+/* Kājene */
+
+  footer {
+    gap: 18px;
+    align-items: flex-start;
+  }
+
+  .small {
+    white-space: nowrap;
+    font-size: 16px;
+  }
+
+  footer p {
+    font-size: 8px;
+  }
+
+  .hours {
+    padding: 18px 4px;
+  }
+
+  .hour {
+    min-width: 72px;
+  }
+
+}
+
