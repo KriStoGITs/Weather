@@ -1,53 +1,79 @@
-# Laikaziņa
+# Laikaziņa — API atslēga servera pusē
 
-Responsīva laikapstākļu lietotne latviešu valodā ar HTML, CSS, JavaScript un īstiem Open-Meteo API pieprasījumiem.
+Laikapstākļu lietotne latviešu valodā ar HTML, CSS, JavaScript un nelielu Node.js serveri. OpenWeatherMap API atslēga atrodas tikai serverī.
 
-## Palaišana
+## Palaišana datorā
 
-Atver `dist/index.html` pārlūkā. Nepieciešams internets; API atslēga nav vajadzīga. Var izmantot arī VS Code Live Server ar `dist` kā lapas direktoriju.
+Nepieciešams Node.js 20.12 vai jaunāks. Papildu bibliotēkas nav jāinstalē.
 
-## Iespējas
+1. Iegūsti savu aktīvo OpenWeatherMap API atslēgu: https://home.openweathermap.org/api_keys.
+2. Nokopē `.env.example` failu un kopijai piešķir nosaukumu `.env`.
+3. `.env` failā aiz vienādības zīmes ieraksti savu atslēgu:
 
-- Pilsētu meklēšana ar rezultātu izvēli un ātrās pogas Latvijas pilsētām.
-- Pašreizējā temperatūra, sajūtu temperatūra, laikapstākļu apraksts un SVG ikonas.
-- Dienas minimālā un maksimālā temperatūra.
-- Spiediens jūras līmenī (hPa), relatīvais mitrums (%), vēja ātrums (m/s) un virziens.
-- Redzamība kilometros no tuvākās stundas prognozes ar norādītu laiku.
-- Nākamo piecu dienu un tuvāko 24 stundu prognoze ar divu stundu soli.
-- Atjaunošanas poga, ielādes un kļūdu paziņojumi, pēdējās pilsētas saglabāšana pārlūkā.
-- Telefona un datora izkārtojumi, tastatūras vadība un pieejamas formas etiķetes.
+   ```env
+   OPENWEATHER_API_KEY=tava_atslēga
+   ```
 
-## API
+4. Palaid `start.bat` vai projekta mapē izpildi `node server.js`.
+5. Pārlūkā atver http://127.0.0.1:4173.
 
-Pilsētu meklēšana: `https://geocoding-api.open-meteo.com/v1/search` ar `name`, `count`, `language=lv`, `format=json`.
+Pēc `.env` maiņas pārstartē serveri. Projekts vairs nedarbojas, vienkārši atverot `dist/index.html` vai izmantojot tikai Live Server: laikapstākļu pieprasījumus apkalpo Node.js serveris. Ja ports 4173 jau aizņemts, apturi iepriekšējo priekšskatījuma serveri vai iestati citu `PORT` vides mainīgo.
 
-Laikapstākļi: `https://api.open-meteo.com/v1/forecast` ar `latitude` un `longitude`.
+Atslēga nav iekļauta lejupielādējamajā projektā. Tā vienreiz jāievada servera `.env` failā, nevis lapā vai čatā.
 
-`current`: `temperature_2m`, `relative_humidity_2m`, `apparent_temperature`, `is_day`, `weather_code`, `pressure_msl`, `wind_speed_10m`, `wind_direction_10m`.
+## Kā tiek paslēpta atslēga
 
-`hourly`: `temperature_2m`, `visibility`, `weather_code`, `precipitation_probability`, `is_day`.
+```text
+Pārlūks → mūsu Node.js serveris → OpenWeatherMap API
+         tikai koordinātes       appid + koordinātes
+```
 
-`daily`: `temperature_2m_max`, `temperature_2m_min`, `weather_code`.
+Pārlūka `app.js` vairs nesatur atslēgu un neveic tiešus laikapstākļu API pieprasījumus uz OpenWeatherMap. Tas pieprasa `/api/weather`, `/api/forecast` un `/api/cities` mūsu serverī.
 
-Papildu parametri: `timezone=auto`, `forecast_days=6`, `wind_speed_unit=ms`. Laiki ir izvēlētās pilsētas vietējā laikā. Ikonas un latviskie laikapstākļu apraksti tiek izvēlēti pēc WMO koda. Redzamība no API tiek pārvērsta no metriem kilometros. Visi rādītāji ir API modeļu aprēķini.
+`server.js` nolasa `process.env.OPENWEATHER_API_KEY` un tikai servera pusē pievieno to OpenWeatherMap pieprasījumam:
 
-Dokumentācija: https://open-meteo.com/en/docs un https://open-meteo.com/en/docs/geocoding-api. Vietu dati: GeoNames. Bezmaksas API paredzēts nekomerciālai lietošanai.
+```js
+query.set("appid", apiKey);
+```
 
-## Faili
+Pārlūks saņem laikapstākļu JSON datus. OpenWeatherMap kļūdu teksti un URL netiek pārsūtīti apmeklētājam. Serveris publiski izsniedz tikai `index.html`, `style.css`, `app.js` un `icons.js`; `.env` un `server.js` adreses atgriež 404. `.gitignore` neļauj `.env` failam nejauši nonākt Git repozitorijā.
 
-- `dist/index.html` — lapas struktūra.
-- `dist/style.css` — dizains un responsīvais izkārtojums.
-- `dist/app.js` — API pieprasījumi, meklēšana, datu attēlošana un kļūdu apstrāde.
-- `dist/icons.js` — SVG laikapstākļu ikonas un to izvēle pēc API koda.
+Apmeklētājs nevar nolasīt šo atslēgu pārlūka pirmkodā, lapas laukos vai pārlūka tīkla pieprasījumos. Servera īpašnieks ar piekļuvi failiem vai hostinga iestatījumiem atslēgu joprojām var redzēt. Faila pārdēvēšana vai JavaScript teksta sajaukšana pati par sevi atslēgu nepaslēptu.
 
-## Kā lasīt kodu
+## Publicēšana
 
-Sāc ar `index.html`, lai redzētu lapas sadaļas. HTML elementu `id` savieno tos ar JavaScript, savukārt `class` nosaka CSS noformējumu.
+Nepieciešams hostings ar Node.js servera atbalstu. Hostinga vides mainīgajos iestati `OPENWEATHER_API_KEY`; atslēgu neievieto publiskajos failos. Palaides komanda ir `node server.js`. Serveris izmanto `PORT` un `HOST` vides mainīgos; izvietojot hostingā, parasti nepieciešams `HOST=0.0.0.0`. Pārlūks un API maršruti darbojas vienā vietnes adresē. Nepublicē projekta saknes mapi kā parastu failu direktoriju.
 
-`app.js` ir sakārtots sešās sadaļās: sākuma dati, palīgfunkcijas, datu attēlošana, API pieprasījumi, pilsētas saglabāšana un pogu darbības. Lietotne sāk darbu faila beigās ar `restoreCity()` un `loadWeather(selectedCity)`.
+Ja iepriekšējā pārlūka versijā tava īstā atslēga jau tika publiski izplatīta, nomaini to OpenWeatherMap kontā: jaunā versija nevar izņemt atslēgu no jau lejupielādētām vecajām kopijām.
 
-`loadWeather()` saņem datus no API un izsauc četras attēlošanas funkcijas: `showCurrentWeather()`, `showWeatherDetails()`, `showDailyForecast()` un `showHourlyForecast()`. Pilsētu meklēšanu veic `searchCity()`.
+## Failu uzbūve
 
-Izmantotas parastas funkcijas, `if` nosacījumi un `for` cikli. `async` un `await` ļauj sagaidīt API atbildi, bet `try`, `catch` un `finally` apstrādā kļūdas un atkal ieslēdz pogas. Kamēr notiek pieprasījums, pogas ir atspējotas, lai vairāku pilsētu atbildes nesajauktos.
+- `server.js` — statiskie faili, API maršruti, ievades pārbaude un servera atslēga.
+- `.env.example` — konfigurācijas paraugs bez atslēgas.
+- `.env` — tavs lokālais fails ar atslēgu; tas nav iekļauts piegādes arhīvā.
+- `.gitignore` — izslēdz slepeno konfigurāciju no Git.
+- `start.bat` — ērta palaišana Windows datorā.
+- `dist/index.html` — lapas saturs.
+- `dist/style.css` — noformējums.
+- `dist/app.js` — meklēšana, datu pieprasījumi mūsu serverim un attēlošana.
+- `dist/icons.js` — ikonas pēc API saņemtā ikonas koda.
 
-Nav ietvaru, instalējamu atkarību vai būvēšanas soļa. Google Fonts neveiksmes gadījumā tiek izmantots sistēmas fonts.
+## API un aprēķini
+
+Serveris izmanto OpenWeatherMap Current Weather, 5 Day / 3 Hour Forecast un Geocoding API. Laikapstākļu pieprasījumos izmanto `units=metric` un `lang=la`.
+
+- `main.temp`, `main.feels_like`, `main.temp_min`, `main.temp_max` — temperatūras °C.
+- `main.pressure` — spiediens hPa; `main.humidity` — mitrums %.
+- `visibility / 1000` — redzamība kilometros.
+- `wind.speed`, `wind.deg` — vēja ātrums m/s un virziens grādos.
+- `weather[0].description`, `weather[0].icon` — apraksts un ikona.
+- `pop * 100` — nokrišņu varbūtība procentos.
+
+Current Weather `temp_min` un `temp_max` ir min./maks. temperatūras pilsētā konkrētajā brīdī, nevis visas dienas galējās vērtības. Dienu kartītēs min./maks. aprēķināti no pieejamajiem 3 h prognozes punktiem; pēdējā diena var būt nepilna. Dienas ikonu un aprakstu izvēlamies no punkta, kas tuvāks vietējam pusdienlaikam. Pilsētas laiku iegūstam no `dt` un `timezone`. Noklusējuma pilsēta ir Valmiera; pēdējā izvēlētā pilsēta saglabājas localStorage.
+
+Dokumentācija:
+- https://openweathermap.org/api/current
+- https://openweathermap.org/api/forecast5
+- https://openweathermap.org/api/geocoding-api
+
+Pārbaudes izmanto imitētas API atbildes un fiktīvu atslēgu. Reāliem laikapstākļu datiem serverī jāiestata sava aktīva atslēga.

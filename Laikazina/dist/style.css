@@ -419,7 +419,7 @@ form button span {
   margin-right: 17px;
 }
 
-.day-row svg {
+.day-row .weather-icon {
   width: 30px;
   height: 30px;
 }
@@ -548,7 +548,7 @@ form button span {
   margin: 0 0 12px;
 }
 
-.hour svg {
+.hour .weather-icon {
   width: 34px;
   height: 34px;
   display: block;
@@ -816,4 +816,18 @@ footer a {
   }
 
 }
+
+
+.data-note {
+  font-size: 9px;
+  line-height: 1.6;
+  color: #617d8e;
+  margin: 12px 0 0;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
 
