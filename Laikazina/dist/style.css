@@ -83,7 +83,7 @@ main {
   padding: 0 0 20px;
 }
 
-/* Virsraksts un pilsētu meklēšana */
+
 
 .intro {
   display: flex;
@@ -219,6 +219,13 @@ form button span {
 
 #status.error {
   color: #a3402d;
+}
+
+#search-error {
+  margin: 8px 0 0;
+  color: #a3402d;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 #weather[aria-busy=true] {
@@ -419,7 +426,7 @@ form button span {
   margin-right: 17px;
 }
 
-.day-row svg {
+.day-row .weather-icon {
   width: 30px;
   height: 30px;
 }
@@ -515,8 +522,6 @@ form button span {
   margin-top: 7px;
 }
 
-/* Stundu prognoze */
-
 .hourly-section {
   margin-top: 30px;
 }
@@ -548,7 +553,7 @@ form button span {
   margin: 0 0 12px;
 }
 
-.hour svg {
+.hour .weather-icon {
   width: 34px;
   height: 34px;
   display: block;
@@ -573,7 +578,6 @@ form button span {
   padding: 20px;
 }
 
-/* Kājene */
 
 footer {
   display: flex;
@@ -607,7 +611,6 @@ footer a {
   color: #7f939e;
 }
 
-/* Etiķete ekrāna lasītājiem */
 
 .sr-only {
   position: absolute;
@@ -621,7 +624,6 @@ footer a {
   border: 0;
 }
 
-/* Pielāgošanās ekrāna platumam */
 
 @media(min-width:1400px) {
   main {
@@ -630,7 +632,7 @@ footer a {
 
 }
 
-/* Pielāgošanās ekrāna platumam */
+
 
 @media(max-width:1260px) {
   main {
@@ -639,10 +641,7 @@ footer a {
 
 }
 
-/* Pielāgošanās ekrāna platumam */
-
 @media(max-width:850px) {
-/* Virsraksts un pilsētu meklēšana */
 
   .intro {
     align-items: flex-start;
@@ -654,7 +653,6 @@ footer a {
     width: 100%;
   }
 
-/* Pašreizējie laikapstākļi un dienu prognoze */
 
   .overview {
     grid-template-columns: 1fr 1fr;
@@ -704,10 +702,8 @@ footer a {
 
 }
 
-/* Pielāgošanās ekrāna platumam */
 
 @media(max-width:560px) {
-/* Galvene */
 
   header {
     padding: 19px 22px;
@@ -725,7 +721,6 @@ footer a {
     margin: 0 20px;
   }
 
-/* Virsraksts un pilsētu meklēšana */
 
   .intro {
     padding-top: 30px;
@@ -735,7 +730,6 @@ footer a {
     font-size: 30px;
   }
 
-/* Pašreizējie laikapstākļi un dienu prognoze */
 
   .overview {
     grid-template-columns: 1fr;
@@ -816,4 +810,18 @@ footer a {
   }
 
 }
+
+
+.data-note {
+  font-size: 9px;
+  line-height: 1.6;
+  color: #617d8e;
+  margin: 12px 0 0;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
 

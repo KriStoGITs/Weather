@@ -1,10 +1,9 @@
-// 1. Sākuma dati un lapas elementi
 
 let selectedCity = {
-  name: "Rīga",
+  name: "Valmiera",
   country: "Latvija",
-  latitude: 56.9496,
-  longitude: 24.1052
+  latitude: 57.5411,
+  longitude: 25.4275
 };
 
 let isLoading = false;
@@ -14,16 +13,12 @@ const cityInput = document.getElementById("city");
 const searchResults = document.getElementById("results");
 const refreshButton = document.getElementById("refresh");
 
-// 2. Palīgfunkcijas
-
 function setText(id, text) {
   document.getElementById(id).textContent = text;
 }
 
 function formatNumber(value, decimalPlaces = 0) {
-  if (!Number.isFinite(value)) {
-    return "—";
-  }
+  if (!Number.isFinite(value)) return "—";
 
   return value.toLocaleString("lv-LV", {
     maximumFractionDigits: decimalPlaces
@@ -33,124 +28,78 @@ function formatNumber(value, decimalPlaces = 0) {
 function showStatus(message, isError = false) {
   const status = document.getElementById("status");
   status.textContent = message;
-
-  if (isError) {
-    status.className = "error";
-  } else {
-    status.className = "";
-  }
+  status.className = "";
+  if (isError) status.className = "error";
 }
 
-// Vienlaikus veicam vienu pieprasījumu, lai pilsētu dati nesajauktos.
 function setLoading(loading) {
   isLoading = loading;
   cityInput.disabled = loading;
   document.getElementById("weather").setAttribute("aria-busy", String(loading));
 
-  const buttons = document.querySelectorAll("button");
-  for (const button of buttons) {
+  for (const button of document.querySelectorAll("button")) {
     button.disabled = loading;
   }
 }
 
-async function getApiData(url) {
-  const response = await fetch(url);
+async function getApiData(path, parameters) {
+  const query = new URLSearchParams(parameters);
+  const response = await fetch(path + "?" + query);
+  const data = await response.json();
 
   if (!response.ok) {
-    throw new Error("API kļūda: " + response.status);
-  }
-
-  const data = await response.json();
-  if (data.error) {
-    throw new Error(data.reason);
+    throw new Error(data.message || "Neizdevās saņemt laikapstākļu datus.");
   }
 
   return data;
 }
 
-function getWeatherDescription(code, isDay = true) {
-  if (code === 0) {
-    if (isDay) {
-      return "Skaidrs un saulains";
-    }
-    return "Skaidra nakts";
-  }
 
-  if (code === 1) return "Pārsvarā skaidrs";
-  if (code === 2) return "Daļēji mākoņains";
-  if (code === 3) return "Apmācies";
-  if ([45, 48].includes(code)) return "Migla";
-  if ([51, 53, 55].includes(code)) return "Smidzinošs lietus";
-  if ([56, 57, 66, 67].includes(code)) return "Sasalstoši nokrišņi";
-  if ([61, 63, 65].includes(code)) return "Lietus";
-  if ([71, 73, 75, 77, 85, 86].includes(code)) return "Sniegs";
-  if ([80, 81, 82].includes(code)) return "Lietusgāzes";
-  if ([95, 96, 99].includes(code)) return "Pērkona negaiss";
-
-  return "Laikapstākļi nav zināmi";
+function getLocalDate(timestamp, timezone) {
+  return new Date((timestamp + timezone) * 1000);
 }
 
-// API dod pilsētas vietējo laiku bez laika joslas apzīmējuma.
-// UTC šeit izmantojam tikai formatēšanai, lai pārlūks nemainītu datumu.
-function formatDate(dateText, options) {
-  const date = new Date(dateText + "Z");
-  options.timeZone = "UTC";
-  return date.toLocaleDateString("lv-LV", options);
+function getDateKey(timestamp, timezone) {
+  return getLocalDate(timestamp, timezone).toISOString().slice(0, 10);
 }
 
-function findNearestHour(times, currentTime) {
-  let nearestIndex = 0;
-  let smallestDifference = Infinity;
-
-  for (let i = 0; i < times.length; i++) {
-    const difference = Math.abs(new Date(times[i] + "Z") - new Date(currentTime + "Z"));
-
-    if (difference < smallestDifference) {
-      smallestDifference = difference;
-      nearestIndex = i;
-    }
-  }
-
-  return nearestIndex;
+function getLocalTime(timestamp, timezone) {
+  return getLocalDate(timestamp, timezone).toISOString().slice(11, 16);
 }
 
-// 3. Laikapstākļu attēlošana
+
 
 function showCurrentWeather(data, city) {
-  const current = data.current;
-  const daily = data.daily;
-  const todayIndex = daily.time.indexOf(current.time.slice(0, 10));
-  let dateText = formatDate(current.time, {
+  const weather = data.weather[0];
+  let dateText = getLocalDate(data.dt, data.timezone).toLocaleDateString("lv-LV", {
     weekday: "long",
     day: "numeric",
-    month: "long"
+    month: "long",
+    timeZone: "UTC"
   });
 
-  if (city.country) {
-    dateText += " · " + city.country;
-  }
+  if (city.country) dateText += " · " + city.country;
 
   setText("location", city.name);
   setText("date", dateText);
-  setText("temperature", formatNumber(current.temperature_2m));
-  setText("condition", getWeatherDescription(current.weather_code, current.is_day === 1));
-  setText("min", formatNumber(daily.temperature_2m_min[todayIndex]));
-  setText("max", formatNumber(daily.temperature_2m_max[todayIndex]));
-  setText("feels", formatNumber(current.apparent_temperature) + " °C");
+  setText("temperature", formatNumber(data.main.temp));
+  setText("condition", weather.description);
+  setText("feels", formatNumber(data.main.feels_like) + " °C");
 
-  document.getElementById("hero-icon").innerHTML = getWeatherIcon(current.weather_code, current.is_day === 1);
-  setText("updated", "ATJAUNOTS " + current.time.slice(11, 16) + " · VIETĒJAIS LAIKS");
+
+  setText("min", formatNumber(data.main.temp_min));
+  setText("max", formatNumber(data.main.temp_max));
+  document.getElementById("hero-icon").innerHTML = getWeatherIcon(weather.icon);
+  setText("updated", "ATJAUNOTS " + getLocalTime(data.dt, data.timezone) + " · VIETĒJAIS LAIKS");
 }
 
 function showWeatherDetails(data) {
-  const current = data.current;
-  const hourly = data.hourly;
-  const windDirection = current.wind_direction_10m;
   const directions = ["Z", "ZA", "A", "DA", "D", "DR", "R", "ZR"];
+  const windDirection = data.wind.deg;
 
-  setText("wind", formatNumber(current.wind_speed_10m, 1));
-  setText("humidity", formatNumber(current.relative_humidity_2m));
-  setText("pressure", formatNumber(current.pressure_msl));
+  setText("wind", formatNumber(data.wind.speed, 1));
+  setText("humidity", formatNumber(data.main.humidity));
+  setText("pressure", formatNumber(data.main.pressure));
 
   if (Number.isFinite(windDirection)) {
     const directionIndex = Math.round(windDirection / 45) % 8;
@@ -163,127 +112,160 @@ function showWeatherDetails(data) {
 
   const humidityBar = document.getElementById("humidity-bar");
   humidityBar.style.width = "0%";
-  if (Number.isFinite(current.relative_humidity_2m)) {
-    humidityBar.style.width = current.relative_humidity_2m + "%";
+  if (Number.isFinite(data.main.humidity)) {
+    humidityBar.style.width = data.main.humidity + "%";
   }
 
-  // Redzamība pieejama stundu prognozē. API metrus pārvēršam kilometros.
-  const hourIndex = findNearestHour(hourly.time, current.time);
-  const visibility = hourly.visibility[hourIndex];
   let visibilityText = "Dati nav pieejami";
+  setText("visibility", "—");
 
-  if (Number.isFinite(visibility)) {
-    setText("visibility", formatNumber(visibility / 1000, 1));
-
-    if (visibility >= 10000) {
+  if (Number.isFinite(data.visibility)) {
+    setText("visibility", formatNumber(data.visibility / 1000, 1));
+    if (data.visibility >= 10000) {
       visibilityText = "Laba redzamība";
-    } else if (visibility >= 1000) {
+    } else if (data.visibility >= 1000) {
       visibilityText = "Ierobežota redzamība";
     } else {
       visibilityText = "Ļoti zema redzamība";
     }
-  } else {
-    setText("visibility", "—");
   }
 
   setText("visibility-note", visibilityText);
-  setText("visibility-time", "Stundas prognoze · " + hourly.time[hourIndex].slice(11, 16));
+  setText("visibility-time", "Pašreizējie dati · " + getLocalTime(data.dt, data.timezone));
 }
 
-function showDailyForecast(data) {
-  const daily = data.daily;
-  const todayIndex = daily.time.indexOf(data.current.time.slice(0, 10));
+
+function showDailyForecast(forecast, current) {
   const container = document.getElementById("daily");
   container.innerHTML = "";
+  const days = {};
+  const today = getDateKey(current.dt, current.timezone);
 
-  for (let i = todayIndex + 1; i < Math.min(daily.time.length, todayIndex + 6); i++) {
-    let dayName = formatDate(daily.time[i] + "T12:00:00", { weekday: "long" });
-    if (i === todayIndex + 1) {
-      dayName = "Rīt";
+  for (const item of forecast.list) {
+    const date = getDateKey(item.dt, current.timezone);
+    if (date <= today) continue;
+
+    if (!days[date]) days[date] = [];
+    days[date].push(item);
+  }
+
+  let dayCount = 0;
+  for (const date in days) {
+    if (dayCount === 5) break;
+    const items = days[date];
+    let minimum = items[0].main.temp;
+    let maximum = items[0].main.temp;
+    let representative = items[0];
+
+    for (const item of items) {
+      minimum = Math.min(minimum, item.main.temp);
+      maximum = Math.max(maximum, item.main.temp);
+
+      const hour = getLocalDate(item.dt, current.timezone).getUTCHours();
+      const selectedHour = getLocalDate(representative.dt, current.timezone).getUTCHours();
+      if (Math.abs(hour - 12) < Math.abs(selectedHour - 12)) {
+        representative = item;
+      }
     }
 
+    const dayName = new Date(date + "T12:00:00Z").toLocaleDateString("lv-LV", {
+      weekday: "long",
+      timeZone: "UTC"
+    });
     const row = document.createElement("div");
     row.className = "day-row";
-    row.innerHTML = `
-      <span class="day-name">
-        ${dayName}
-        <small>${getWeatherDescription(daily.weather_code[i])}</small>
-      </span>
-      <span>${getWeatherIcon(daily.weather_code[i])}</span>
-      <span class="day-temps">
-        <span>${formatNumber(daily.temperature_2m_min[i])}°</span>
-        ${formatNumber(daily.temperature_2m_max[i])}°
-      </span>
-    `;
+    row.title = "Min./maks. no pieejamajiem šīs dienas 3 h prognozes punktiem; pēdējā diena var būt nepilna.";
+    const label = document.createElement("span");
+    label.className = "day-name";
+    label.textContent = dayName;
+    const description = document.createElement("small");
+    description.textContent = representative.weather[0].description;
+    label.append(description);
+    const symbol = document.createElement("span");
+    symbol.innerHTML = getWeatherIcon(representative.weather[0].icon);
+    const temperatures = document.createElement("span");
+    temperatures.className = "day-temps";
+    temperatures.innerHTML = "<span>" + formatNumber(minimum) + "°</span>" + formatNumber(maximum) + "°";
+    row.append(label, symbol, temperatures);
     container.append(row);
+    dayCount++;
   }
+
+  if (dayCount === 0) container.textContent = "Dienu prognoze nav pieejama.";
 }
 
-function showHourlyForecast(data) {
-  const hourly = data.hourly;
+function showHourlyForecast(forecast, current) {
   const container = document.getElementById("hourly");
   container.innerHTML = "";
 
-  let startIndex = hourly.time.findIndex(function (time) {
-    return time >= data.current.time;
-  });
+  for (const item of forecast.list) {
+    if (item.dt < current.dt) continue;
+    if (item.dt >= current.dt + 24 * 60 * 60) break;
 
-  if (startIndex === -1) {
-    startIndex = findNearestHour(hourly.time, data.current.time);
-  }
-
-  // Rādām tuvākās 24 stundas ar divu stundu soli.
-  for (let i = startIndex; i < Math.min(hourly.time.length, startIndex + 24); i += 2) {
-    const isDay = hourly.is_day[i] === 1;
     const hour = document.createElement("div");
     hour.className = "hour";
-    hour.title = getWeatherDescription(hourly.weather_code[i], isDay);
+    hour.title = item.weather[0].description;
+    // API nokrišņu varbūtība ir 0–1; pārvēršam to procentos.
+    let probability = "—";
+    if (Number.isFinite(item.pop)) probability = formatNumber(item.pop * 100);
     hour.innerHTML = `
-      <p>${hourly.time[i].slice(11, 16)}</p>
-      ${getWeatherIcon(hourly.weather_code[i], isDay)}
-      <strong>${formatNumber(hourly.temperature_2m[i])}°</strong>
-      <small>${formatNumber(hourly.precipitation_probability[i])}% nokrišņi</small>
+      <p>${getLocalTime(item.dt, current.timezone)}</p>
+      ${getWeatherIcon(item.weather[0].icon)}
+      <strong>${formatNumber(item.main.temp)}°</strong>
+      <small>${probability}% nokrišņi</small>
     `;
     container.append(hour);
   }
-}
 
-// 4. Datu ielāde no API
+  if (container.children.length === 0) container.textContent = "Stundu prognoze nav pieejama.";
+}
 
 async function loadWeather(city) {
   if (isLoading) return;
 
+  clearSearchError();
   clearSearchResults();
   setLoading(true);
   showStatus("Ielādē laikapstākļus: " + city.name + "…");
-
-  const parameters = new URLSearchParams({
-    latitude: city.latitude,
-    longitude: city.longitude,
-    current: "temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,pressure_msl,wind_speed_10m,wind_direction_10m",
-    hourly: "temperature_2m,visibility,weather_code,precipitation_probability,is_day",
-    daily: "temperature_2m_max,temperature_2m_min,weather_code",
-    wind_speed_unit: "ms",
-    timezone: "auto",
-    forecast_days: "6"
-  });
+  const parameters = {
+    lat: city.latitude,
+    lon: city.longitude
+  };
 
   try {
-    const data = await getApiData("https://api.open-meteo.com/v1/forecast?" + parameters);
-
-    showCurrentWeather(data, city);
-    showWeatherDetails(data);
-    showDailyForecast(data);
-    showHourlyForecast(data);
-
+    const current = await getApiData("/api/weather", parameters);
+    showCurrentWeather(current, city);
+    showWeatherDetails(current);
+    document.getElementById("weather").hidden = false;
     selectedCity = city;
     saveCity(city);
-    showStatus("Prognoze: " + data.timezone + " · Aktuālie API dati");
+
+    setText("daily", "Ielādē prognozi…");
+    setText("hourly", "Ielādē prognozi…");
+    try {
+      const forecast = await getApiData("/api/forecast", parameters);
+      showDailyForecast(forecast, current);
+      showHourlyForecast(forecast, current);
+      showStatus("Dati no OpenWeatherMap · Prognoze ar 3 stundu soli");
+    } catch (error) {
+      setText("daily", "Prognozi neizdevās ielādēt.");
+      setText("hourly", "Prognozi neizdevās ielādēt.");
+      showStatus("Pašreizējie dati ielādēti. " + error.message, true);
+    }
   } catch (error) {
-    showStatus("Neizdevās ielādēt datus. Pārbaudi interneta savienojumu un mēģini vēlreiz ar ↻.", true);
+    showStatus(error.message, true);
   } finally {
     setLoading(false);
   }
+}
+
+// 5. Pilsētu meklēšana
+
+function clearSearchError() {
+  const error = document.getElementById("search-error");
+  error.textContent = "";
+  error.hidden = true;
+  cityInput.setAttribute("aria-invalid", "false");
 }
 
 function clearSearchResults() {
@@ -291,116 +273,103 @@ function clearSearchResults() {
   searchResults.hidden = true;
 }
 
-function showSearchResults(cities) {
-  for (const city of cities) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = city.name;
-
-    if (city.admin1) button.textContent += ", " + city.admin1;
-    if (city.country) button.textContent += ", " + city.country;
-
-    button.addEventListener("click", function () {
-      cityInput.value = "";
-      loadWeather(city);
-    });
-
-    searchResults.append(button);
-  }
-
-  searchResults.hidden = false;
-}
-
 async function searchCity(event) {
   event.preventDefault();
+  if (isLoading) return;
   const cityName = cityInput.value.trim();
-  if (cityName.length < 2 || isLoading) return;
+  if (cityName.length < 2) return;
 
+  clearSearchError();
   clearSearchResults();
   setLoading(true);
   showStatus("Meklē pilsētu…");
 
-  const parameters = new URLSearchParams({
-    name: cityName,
-    count: "6",
-    language: "lv",
-    format: "json"
-  });
-
   try {
-    const data = await getApiData("https://geocoding-api.open-meteo.com/v1/search?" + parameters);
-
-    if (!data.results || data.results.length === 0) {
-      showStatus("Pilsēta nav atrasta. Izmēģini citu nosaukumu.", true);
+    const cities = await getApiData("/api/cities", { q: cityName });
+    if (cities.length === 0) {
+      const error = document.getElementById("search-error");
+      error.textContent = "Pilsēta nav atrasta. Izmēģini citu nosaukumu.";
+      error.hidden = false;
+      cityInput.setAttribute("aria-invalid", "true");
+      showStatus("");
       return;
     }
 
-    showSearchResults(data.results);
+    for (const result of cities) {
+      let name = result.name;
+      if (result.local_names && result.local_names.lv) name = result.local_names.lv;
+      const city = {
+        name: name,
+        country: result.country,
+        latitude: result.lat,
+        longitude: result.lon
+      };
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = name + ", " + result.country;
+      if (result.state) button.textContent += ", " + result.state;
+      button.addEventListener("click", function () {
+        cityInput.value = "";
+        loadWeather(city);
+      });
+      searchResults.append(button);
+    }
+
+    searchResults.hidden = false;
     showStatus("Izvēlies pilsētu meklēšanas rezultātos.");
   } catch (error) {
-    showStatus("Meklēšana neizdevās. Mēģini vēlreiz.", true);
+    showStatus(error.message, true);
   } finally {
     setLoading(false);
   }
 }
 
-// 5. Pēdējās pilsētas saglabāšana pārlūkā
+
 
 function saveCity(city) {
   try {
     localStorage.setItem("laikazina-place", JSON.stringify(city));
   } catch (error) {
-    // Lietotne darbojas arī tad, ja pārlūks neatļauj datu saglabāšanu.
   }
 }
 
 function restoreCity() {
   try {
     const city = JSON.parse(localStorage.getItem("laikazina-place"));
-    if (!city) return;
-    if (typeof city.name !== "string") return;
+    if (!city || typeof city.name !== "string") return;
     if (!Number.isFinite(city.latitude) || !Number.isFinite(city.longitude)) return;
     if (Math.abs(city.latitude) > 90 || Math.abs(city.longitude) > 180) return;
-
     selectedCity = city;
   } catch (error) {
-    // Ja saglabātie dati nav derīgi, sākumā paliek Rīga.
   }
 }
 
-// 6. Pogu darbības un lietotnes palaišana
-
 searchForm.addEventListener("submit", searchCity);
-
 refreshButton.addEventListener("click", function () {
   loadWeather(selectedCity);
 });
 
-const quickCityButtons = document.querySelectorAll("[data-city]");
-for (const button of quickCityButtons) {
+for (const button of document.querySelectorAll("[data-city]")) {
   button.addEventListener("click", function () {
-    const city = {
+    loadWeather({
       name: button.dataset.city,
       country: "Latvija",
       latitude: Number(button.dataset.lat),
       longitude: Number(button.dataset.lon)
-    };
-
-    loadWeather(city);
+    });
   });
 }
 
 cityInput.addEventListener("keydown", function (event) {
-  if (event.key === "Escape") {
-    clearSearchResults();
-  }
+  if (event.key === "Escape") clearSearchResults();
 });
 
+cityInput.addEventListener("input", clearSearchError);
+
 document.addEventListener("click", function (event) {
-  if (!event.target.closest(".search-area")) {
-    clearSearchResults();
-  }
+  if (!event.target.closest(".search-area")) clearSearchResults();
 });
 
 restoreCity();
+setText("location", selectedCity.name);
 loadWeather(selectedCity);
